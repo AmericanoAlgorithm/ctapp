@@ -1,12 +1,17 @@
 #!/usr/bin/env python
+import glob
+import pkg_resources
+import os
+import numpy as np
 from setuptools import setup, Extension, find_packages
+from sysconfig import get_paths
 from Cython.Build import cythonize
 from Cython.Compiler import Options
 
 Options.language_level = 3
 
-import pkg_resources
-import glob
+__INCLUDE = get_paths()['include'].split(os.sep)[:-1]
+__INCLUDE = (os.sep).join(__INCLUDE)
 
 __CANTERA_OBJ = pkg_resources.resource_filename('cantera', '_cantera.*so')
 __CANTERA_OBJ = glob.glob(__CANTERA_OBJ)[0]
@@ -18,12 +23,18 @@ def readme():
     with open('README.md') as f:
         return f.read()
 
+
 extensions = [
     Extension(
         "ctapp._ctapp",
         ["ctapp/_ctapp.pyx",
          "ctapp/NewFlow.cpp"],
         language='c++',
+        << << << < HEAD
+        include_dirs=[np.get_include(), __INCLUDE],
+        == == == =
+        include_dirs=[os.path.join(np.get_include(), 'numpy')],
+        >>>>>> > b0c0ad8... Enable installation for cantera-devel
         extra_objects=[__CANTERA_OBJ],
         depends=[__CANTERA_DEP],
     ),
